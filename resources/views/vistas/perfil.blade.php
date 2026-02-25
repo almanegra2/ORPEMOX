@@ -57,7 +57,7 @@
         </script>
     @endif
         
-    <h4 class="text-center text-secondary">MI PERFIL</h4>
+    <h4 class="text-center text-secondary">MI PERFIL isuario</h4>
 
     @foreach ($datos as $item)
     <div class="contenedor">
