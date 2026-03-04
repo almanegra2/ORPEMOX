@@ -1,0 +1,434 @@
+/* ============================================
+   LOGIN MODERNO CON GLASSMORPHISM
+   ============================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* FONDO */
+body {
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    background: url('../img/punto.jpeg') no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+/* WRAPPER */
+.login-wrapper {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* OVERLAY OSCURO CON GRADIENTE */
+.background-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.6) 100%);
+    z-index: 0;
+}
+
+/* CONTENEDOR LOGIN */
+.login-container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+}
+
+/* CAJA GLASSMORPHISM */
+.login-box {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    padding: 50px 40px;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    animation: slideUp 0.6s ease-out;
+}
+
+/* HEADER LOGIN */
+.login-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+/* AVATAR CÍRCULO */
+.avatar-circle {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 20px;
+    background: #FFFFFF;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(255, 255, 255, 0.4);
+    animation: bounce 0.6s ease-out;
+}
+
+.avatar-circle img {
+    width: 80%;
+    height: 80%;
+    object-fit: contain;
+}
+
+/* TÍTULOS */
+.welcome-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 5px;
+    letter-spacing: 0.5px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #999;
+    font-weight: 400;
+    margin: 0;
+}
+
+/* ALERTAS */
+.alert {
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+}
+
+.alert-info {
+    background: rgba(32, 201, 201, 0.1);
+    color: #20c9c9;
+}
+
+.alert i {
+    font-size: 15px;
+}
+
+/* FORMULARIO */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+/* INPUT GROUP */
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #444;
+    border-radius: 12px;
+    padding: 0 15px;
+    transition: all 0.3s ease;
+}
+
+.input-group:focus-within {
+    background: rgba(0, 0, 0, 0.9);
+    border-color: #FFD700;
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+/* INPUT ICON */
+.input-icon {
+    color: #999;
+    font-size: 18px;
+    margin-right: 10px;
+    transition: color 0.3s ease;
+}
+
+.input-group:focus-within .input-icon {
+    color: #FFD700;
+}
+
+/* INPUT */
+.form-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 12px 0;
+    font-size: 15px;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+}
+
+.form-input::placeholder {
+    color: #bbb;
+}
+
+.form-input:focus {
+    outline: none;
+}
+
+.form-input.is-invalid {
+    color: #e74c3c;
+}
+
+/* TOGGLE PASSWORD */
+.toggle-password {
+    cursor: pointer;
+    color: #999;
+    font-size: 18px;
+    transition: color 0.3s ease;
+    padding-left: 10px;
+}
+
+.toggle-password:hover {
+    color: #667eea;
+}
+
+/* MENSAJE ERROR */
+.error-message {
+    font-size: 12px;
+    color: #e74c3c;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: shake 0.4s ease;
+}
+
+.error-message i {
+    font-size: 14px;
+}
+
+/* OLVIDE CONTRASEÑA */
+.forgot-password {
+    text-align: right;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.forgot-password a {
+    font-size: 13px;
+    color: #FFD700;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    font-weight: 500;
+}
+
+.forgot-password a:hover {
+    color: #FFA500;
+}
+
+/* BOTÓN LOGIN */
+.btn-login {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    color: #333;
+    border: none;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+    font-family: 'Poppins', sans-serif;
+}
+
+.btn-login:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
+}
+
+.btn-login:active {
+    transform: translateY(-1px);
+}
+
+.btn-login i {
+    transition: transform 0.3s ease;
+}
+
+.btn-login:hover i {
+    transform: translateX(4px);
+}
+
+/* FOOTER */
+.login-footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.login-footer p {
+    font-size: 12px;
+    color: #999;
+    margin: 0;
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+    .login-box {
+        padding: 40px 25px;
+    }
+
+    .login-container {
+        max-width: 100%;
+    }
+
+    .welcome-title {
+        font-size: 24px;
+    }
+
+    .avatar-circle {
+        width: 80px;
+        height: 80px;
+    }
+
+    .login-header {
+        margin-bottom: 30px;
+    }
+
+    .login-form {
+        gap: 15px;
+    }
+
+    .btn-login {
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        background-size: auto;
+    }
+
+    .login-box {
+        padding: 30px 20px;
+        border-radius: 15px;
+    }
+
+    .login-container {
+        padding: 15px;
+    }
+
+    .welcome-title {
+        font-size: 22px;
+    }
+
+    .avatar-circle {
+        width: 70px;
+        height: 70px;
+    }
+
+    .input-group {
+        padding: 0 12px;
+    }
+
+    .form-input {
+        padding: 10px 0;
+    }
+
+    .subtitle {
+        font-size: 12px;
+    }
+}
+
+/* ============================================
+   MODO OSCURO (Opcional)
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+    .login-box {
+        background: rgba(30, 30, 30, 0.95);
+    }
+
+    .welcome-title {
+        color: #fff;
+    }
+
+    .input-group {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: #444;
+    }
+
+    .input-group:focus-within {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: #667eea;
+    }
+
+    .form-input {
+        color: #fff;
+    }
+
+    .form-input::placeholder {
+        color: #888;
+    }
+
+    .login-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+}

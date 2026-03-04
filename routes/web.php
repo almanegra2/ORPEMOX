@@ -14,11 +14,8 @@ use App\Http\Controllers\RecuperarClaveController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\PruductoController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
+
+// Web Routes
 
 Route::get('/', function () {
     return redirect()->route('home');
@@ -29,7 +26,6 @@ Auth::routes(['verify' => true]);
 Route::get('/home', [HomeController::class, 'index'])
     ->name('home');
 
-
 /*
 |--------------------------------------------------------------------------
 | RUTAS PROTEGIDAS (Usuario verificado)
@@ -38,38 +34,33 @@ Route::get('/home', [HomeController::class, 'index'])
 
 Route::middleware(['verified'])->group(function () {
 
-    // ===============================
     // PERFIL
-    // ===============================
-
     Route::get('mi-perfil', [PerfilController::class, 'index'])
         ->name('usuario.perfil');
-
     Route::post('actualizar-foto-perfil', [PerfilController::class, 'actualizarIMG'])
         ->name('perfil.actualizarIMG');
-
     Route::delete('perfil/eliminar-foto', [PerfilController::class, 'eliminarFotoPerfil'])
         ->name('perfil.eliminarFotoPerfil');
-
-    Route::put('actualizar-datos-perfil', [PerfilController::class, 'actualizarDatos'])
+    Route::get('actualizar-datos-perfil', [PerfilController::class, 'actualizarDatos'])
         ->name('perfil.actualizarDatos');
 
-
-    // ===============================
     // EMPRESA
-    // ===============================
-
     Route::get('empresa-index', [EmpresaController::class, 'index'])
         ->name('empresa.index');
-
     Route::post('empresa-update-{id}', [EmpresaController::class, 'update'])
         ->name('empresa.update');
-        Route::post('actualizar-logo', [EmpresaController::class, "actualizarLogo"])
-        ->name("empresa.actualizarLogo")->middleware('verified');
-        Route::delete('eliminar-logo', [EmpresaController::class, "eliminarLogo"])->name("empresa.eliminarLogo")->middleware('verified');
+    Route::post('actualizar-logo', [EmpresaController::class, "actualizarLogo"])
+        ->name("empresa.actualizarLogo");
+    Route::delete('eliminar-logo', [EmpresaController::class, "eliminarLogo"])
+        ->name("empresa.eliminarLogo");
 
-    // productos
-    Route::resource('productos', PruductoController::class)->middleware('verified');
-        
+    // PRODUCTOS
+    Route::resource('productos', PruductoController::class);
+    Route::post("buscar-producto", [PruductoController::class, "buscarProducto"])
+        ->name("producto.buscar");
+    Route::post("registrar-foto-producto", [PruductoController::class, "registrarFotoProducto"])
+        ->name("producto.registrarFotoProducto");
+    Route::get("eliminar-foto-producto-{id}", [PruductoController::class, "eliminarFotoProducto"])
+        ->name("producto.eliminarFoto");
 
 });

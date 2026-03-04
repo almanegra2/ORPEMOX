@@ -7,6 +7,8 @@
 body{
     font-family: 'Poppins', sans-serif;
     overflow: hidden;
+    background: url('../img/punto.jpeg') no-repeat center center fixed;
+    background-size: cover;
 }
 
 .wave{
@@ -27,9 +29,7 @@ body{
 }
 
 .img{
-	display: flex;
-	justify-content: flex-end;
-	align-items: center;
+	display: none;
 }
 
 .login-content{
@@ -40,7 +40,10 @@ body{
 }
 
 .img img{
-	width: 500px;
+	width: 450px;
+	height: 450px;
+	object-fit: cover;
+	border-radius: 50%;
 }
 
 form{

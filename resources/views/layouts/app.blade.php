@@ -1,9 +1,6 @@
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-
-<head>
-
-    <head lang="es">
+<head lang="es">
         <meta charset="utf-8">
         <meta content="width=device-width, initial-scale=1, user-scalable=no" name="viewport">
         <meta content="ie=edge" http-equiv="x-ua-compatible">
@@ -92,12 +89,17 @@
             .marca__parrafo span {
                 color: red;
             }
+
+            #example2_wrapper .datatables_info {
+                display: none;
+            }
+
+            #example2_wrapper .paging_simple_numbers {
+              display: none;
+            }
         </style>
         @laravelPWA
-
-    </head>
 </head>
-
 <body class="with-side-menu">
     <div id="app">
 
@@ -304,7 +306,52 @@
             }
 			});
 		});
+        $(function() {
+            $('#example2').DataTable({
+                select: {
+                    //style: 'multi'
+                },
+                columnDefs: [{
+                    targets: 0,
+                    checkboxes: {
+                        selectRow: true
+                    }
+                }],
+                responsive: true,
+                "language": {
+                    "sProcessing": "Procesando...",
+                    "sZeroRecords": "No se encontraron resultados",
+                    "sEmptyTable": "Ningún dato disponible en esta tabla =(",
+                    "sInfo": "Registros del _START_ al _END_ de _TOTAL_ registros",
+                    "sInfoEmpty": "Registros del 0 al 0 de 0 registros",
+                    "sInfoFiltered": "-",
+                    "sInfoPostFix": "",
+                    "sSearch": "", // Quitamos la opción de búsqueda
+                    "sUrl": "",
+                    "sInfoThousands": ",",
+                    "sLoadingRecords": "Cargando...",
+                    "oPaginate": {
+                        "sFirst": "Primero",
+                        "sLast": "Último",
+                        "sNext": "Siguiente",
+                        "sPrevious": "Anterior"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                        "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+                    },
+                    "buttons": {
+                        "copy": "Copiar",
+                        "colvis": "Visibilidad"
+                    }
+                },
+                "lengthChange": false, // Ocultar la opción de cambiar la cantidad de registros por página
+                "searching": false // Ocultar la barra de búsqueda
+            });
+        });
+    
     </script>
+    
 
 
     <script type="text/javascript" src="{{asset('app/publico/js/lib/jqueryui/jquery-ui.min.js')}}"></script>
