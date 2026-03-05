@@ -35,9 +35,7 @@
 
         {{-- form --}}
         <link rel="stylesheet" type="text/css"
-            href="{{asset('app/publico/css/lib/jquery-flex-label/jquery.flex.label.css')}}"> <!-- Original -->
-
-        {{-- mis estilos --}}
+            href="{{asset('app/publico/css/lib/jquery-flex-label/jquery.flex.label.css')}}"> {{-- mis estilos --}}
         <link href="{{asset('principal/css/estilos.css')}}" rel="stylesheet">
 
         {{-- pNotify --}}
@@ -50,12 +48,9 @@
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 
         {{-- pnotify --}}
-        <script src="{{asset('pnotify/js/jquery.min.js')}}">
-        </script>
-        <script src="{{asset('pnotify/js/pnotify.js')}}">
-        </script>
-        <script src="{{asset('pnotify/js/pnotify.buttons.js')}}">
-        </script>
+        <script src="{{asset('pnotify/js/jquery.min.js')}}"></script>
+        <script src="{{asset('pnotify/js/pnotify.js')}}"></script>
+        <script src="{{asset('pnotify/js/pnotify.buttons.js')}}"></script>
 
         {{-- alpine js --}}
         <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
@@ -145,12 +140,13 @@
                                     <h5 class="p-2 text-center nomInfo">{{ Auth::user()->nombre . " " . Auth::user()->apellido }}</h5>
                                     <a class="dropdown-item" href="{{ route('usuario.perfil') }}"><span
                                             class="font-icon glyphicon glyphicon-user"></span>Perfil</a>
-                                    <a class="dropdown-item" href=""><span
+                                    
+                                    <a class="dropdown-item" href="{{ route('usuario.cambiarClave') }}"><span
                                             class="font-icon glyphicon glyphicon-lock"></span>Cambiar contraseña</a>
 
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
-                                                         document.getElementById('logout-form').submit();">
+                                                                                         document.getElementById('logout-form').submit();">
                                         <span class="font-icon glyphicon glyphicon-log-out"></span>salir
                                     </a>
 
@@ -160,87 +156,55 @@
                                 </div>
                             </div>
                         </div>
-                        <!--.site-header-shown-->
-
                         <div class="mobile-menu-right-overlay"></div>
                         <div class="site-header-collapsed">
 
                         </div>
-                        <!--.site-header-collapsed-->
+                        </div>
                     </div>
-                    <!--site-header-content-in-->
                 </div>
-                <!--.site-header-content-->
-            </div>
-            <!--.container-fluid-->
-        </header>
+            </header>
 
         <div class="mobile-menu-left-overlay">
         </div>
         <nav class="side-menu">
-            
-            <ul class="side-menu-list p-0">
-                <li class="red">
-                    <a href="{{route('home')}}" class="{{ Request::is('home*') ? 'activo' : ''}}">
-                        <img src="{{asset('img-inicio/house.png')}}" class="img-inicio" alt="">
-                        {{-- <i class="fas fa-house-user"></i> --}}
-                        <span class="lbl">INICIO</span>
+    <ul class="side-menu-list p-0">
+        <li class="red">
+            <a href="{{route('home')}}" class="{{ Request::is('home*') ? 'activo' : ''}}">
+                <img src="{{asset('img-inicio/house.png')}}" class="img-inicio"> <span class="lbl">INICIO</span>
+            </a>
+        </li>
+        {{-- CAMBIO AQUÍ: Agregamos categoría y la clase 'opened' dinámica --}}
+        <li class="grey with-sub {{ Request::is('productos*') || Request::is('categoria*') ? 'opened' : ''}}">
+            <span>
+                <img src="{{asset('img-inicio/boton-agregar.png')}}" class="img-inicio"> 
+                <span class="lbl">REGISTROS</span>
+            </span>
+            <ul>
+                <li>
+                    <a href="{{route('categoria.index')}}" class="{{ Request::is('categoria*') ? 'activo' : ''}}">
+                        <i class="fas fa-tags"></i> <span class="lbl">CATEGORÍA</span>
                     </a>
                 </li>
-
-                <li class="grey with-sub {{ Request::is('cita*') ? 'opened' : ''}}">
-                    <span>
-                        <img src="{{asset('img-inicio/boton-agregar.png')}}" class="img-inicio" alt="">
-                        {{-- <i class="fas fa-sort-amount-up-alt"></i> --}}
-                        <span class="lbl">REGISTROS</span>
-                    </span>
-                    <ul>
-                        <li>
-                            <a href="{{route("productos.create")}}" class="{{ Request::is('productos*') ? 'activo' : ''}}">
-                                <i class="fas fa-plus-square icono-submenu"></i>
-                                <span class="lbl">Registrar productos</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{route("productos.index")}}" class="{{ Request::is('productos*') ? 'activo' : ''}}">
-                                <i class="fas fa-th-list icono-submenu"></i>
-                                <span class="lbl">Lista de productos</span>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
-                
-
-                <li class="red">
-                    <a href="{{route('empresa.index')}}" class="{{ Request::is('empresa*') ? 'activo' : ''}}">
-                        <img src="{{asset('img-inicio/info.png')}}" class="img-inicio" alt="">
-                        {{-- <i class="fas fa-exclamation"></i> --}}
-                        <span class="lbl">ACERCA DE</span>
+                <li>
+                    <a href="{{route('productos.index')}}" class="{{ Request::is('productos*') ? 'activo' : ''}}">
+                        <i class="fas fa-th-list"></i> <span class="lbl">PRODUCTOS</span>
                     </a>
                 </li>
-
-
-
-
             </ul>
-        </nav>
-
-
+        </li>
+        <li class="red">
+            <a href="{{route('empresa.index')}}" class="{{ Request::is('empresa*') ? 'activo' : ''}}">
+                <img src="{{asset('img-inicio/info.png')}}" class="img-inicio"> <span class="lbl">ACERCA DE</span>
+            </a>
+        </li>
+    </ul>
+</nav>
 
         <div class="page-content mt-5">
             @yield('content')
         </div>
     </div>
-
-
-
-
-
-
-
-
-
 
     <script src="{{asset('bootstrap5/js/popper.min.js')}}"
         integrity="sha384-KsvD1yqQ1/1+IA7gi3P0tyJcT3vR+NdBTt13hSJ2lnve8agRGXTTyNaBYmCR/Nwi" crossorigin="anonymous">
@@ -271,10 +235,10 @@
 
     <script>
         $(function() {
-			$('#example').DataTable({
-				select: {
-					//style: 'multi'
-				},
+            $('#example').DataTable({
+                select: {
+                    //style: 'multi'
+                },
                 responsive: true,
             "language": {
                 "sProcessing":     "Procesando...",
@@ -304,8 +268,8 @@
                     "colvis": "Visibilidad"
                 }
             }
-			});
-		});
+            });
+        });
         $(function() {
             $('#example2').DataTable({
                 select: {
@@ -363,99 +327,99 @@
     <script>
         $(document).ready(function () {
 
-			$('.panel').lobiPanel({
-				sortable: true
-			});
-			$('.panel').on('dragged.lobiPanel', function (ev, lobiPanel) {
-				$('.dahsboard-column').matchHeight();
-			});
+            $('.panel').lobiPanel({
+                sortable: true
+            });
+            $('.panel').on('dragged.lobiPanel', function (ev, lobiPanel) {
+                $('.dahsboard-column').matchHeight();
+            });
 
-			google.charts.load('current', { 'packages': ['corechart'] });
-			google.charts.setOnLoadCallback(drawChart);
-			function drawChart() {
-				var dataTable = new google.visualization.DataTable();
-				dataTable.addColumn('string', 'Day');
-				dataTable.addColumn('number', 'Values');
-				// A column for custom tooltip content
-				dataTable.addColumn({ type: 'string', role: 'tooltip', 'p': { 'html': true } });
-				dataTable.addRows([
-					['MON', 130, ' '],
-					['TUE', 130, '130'],
-					['WED', 180, '180'],
-					['THU', 175, '175'],
-					['FRI', 200, '200'],
-					['SAT', 170, '170'],
-					['SUN', 250, '250'],
-					['MON', 220, '220'],
-					['TUE', 220, ' ']
-				]);
+            google.charts.load('current', { 'packages': ['corechart'] });
+            google.charts.setOnLoadCallback(drawChart);
+            function drawChart() {
+                var dataTable = new google.visualization.DataTable();
+                dataTable.addColumn('string', 'Day');
+                dataTable.addColumn('number', 'Values');
+                // A column for custom tooltip content
+                dataTable.addColumn({ type: 'string', role: 'tooltip', 'p': { 'html': true } });
+                dataTable.addRows([
+                    ['MON', 130, ' '],
+                    ['TUE', 130, '130'],
+                    ['WED', 180, '180'],
+                    ['THU', 175, '175'],
+                    ['FRI', 200, '200'],
+                    ['SAT', 170, '170'],
+                    ['SUN', 250, '250'],
+                    ['MON', 220, '220'],
+                    ['TUE', 220, ' ']
+                ]);
 
-				var options = {
-					height: 314,
-					legend: 'none',
-					areaOpacity: 0.18,
-					axisTitlesPosition: 'out',
-					hAxis: {
-						title: '',
-						textStyle: {
-							color: '#fff',
-							fontName: 'Proxima Nova',
-							fontSize: 11,
-							bold: true,
-							italic: false
-						},
-						textPosition: 'out'
-					},
-					vAxis: {
-						minValue: 0,
-						textPosition: 'out',
-						textStyle: {
-							color: '#fff',
-							fontName: 'Proxima Nova',
-							fontSize: 11,
-							bold: true,
-							italic: false
-						},
-						baselineColor: '#16b4fc',
-						ticks: [0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350],
-						gridlines: {
-							color: '#1ba0fc',
-							count: 15
-						}
-					},
-					lineWidth: 2,
-					colors: ['#fff'],
-					curveType: 'function',
-					pointSize: 5,
-					pointShapeType: 'circle',
-					pointFillColor: '#f00',
-					backgroundColor: {
-						fill: '#008ffb',
-						strokeWidth: 0,
-					},
-					chartArea: {
-						left: 0,
-						top: 0,
-						width: '100%',
-						height: '100%'
-					},
-					fontSize: 11,
-					fontName: 'Proxima Nova',
-					tooltip: {
-						trigger: 'selection',
-						isHtml: true
-					}
-				};
+                var options = {
+                    height: 314,
+                    legend: 'none',
+                    areaOpacity: 0.18,
+                    axisTitlesPosition: 'out',
+                    hAxis: {
+                        title: '',
+                        textStyle: {
+                            color: '#fff',
+                            fontName: 'Proxima Nova',
+                            fontSize: 11,
+                            bold: true,
+                            italic: false
+                        },
+                        textPosition: 'out'
+                    },
+                    vAxis: {
+                        minValue: 0,
+                        textPosition: 'out',
+                        textStyle: {
+                            color: '#fff',
+                            fontName: 'Proxima Nova',
+                            fontSize: 11,
+                            bold: true,
+                            italic: false
+                        },
+                        baselineColor: '#16b4fc',
+                        ticks: [0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 275, 300, 325, 350],
+                        gridlines: {
+                            color: '#1ba0fc',
+                            count: 15
+                        }
+                    },
+                    lineWidth: 2,
+                    colors: ['#fff'],
+                    curveType: 'function',
+                    pointSize: 5,
+                    pointShapeType: 'circle',
+                    pointFillColor: '#f00',
+                    backgroundColor: {
+                        fill: '#008ffb',
+                        strokeWidth: 0,
+                    },
+                    chartArea: {
+                        left: 0,
+                        top: 0,
+                        width: '100%',
+                        height: '100%'
+                    },
+                    fontSize: 11,
+                    fontName: 'Proxima Nova',
+                    tooltip: {
+                        trigger: 'selection',
+                        isHtml: true
+                    }
+                };
 
-				var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
-				chart.draw(dataTable, options);
-			}
-			$(window).resize(function () {
-				drawChart();
-				setTimeout(function () {
-				}, 1000);
-			});
-		});
+                var chart = new google.visualization.AreaChart(document.getElementById('chart_div'));
+                chart.draw(dataTable, options);
+            }
+            $(window).resize(function () {
+                drawChart();
+                setTimeout(function () {
+                }, 1000);
+            });
+        });
     </script>
     <script src="{{asset('app/publico/js/app.js')}}">
     </script>
@@ -471,11 +435,57 @@
     })(jQuery);
     </script>
 
+    {{-- ALERTAS PNOTIFY --}}
+    @if (session('correcto'))
+        <script>
+            $(function() {
+                new PNotify({
+                    title: 'ÉXITO',
+                    text: "{{ session('correcto') }}",
+                    type: 'success',
+                    styling: 'bootstrap3'
+                });
+            });
+        </script>
+    @endif
+    @if (session('incorrecto'))
+        <script>
+            $(function() {
+                new PNotify({
+                    title: 'ERROR',
+                    text: "{{ session('incorrecto') }}",
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });
+            });
+        </script>
+    @endif
 
-
-
-
+    {{-- SOPORTE PARA LAS ALERTAS DEL CONTROLADOR --}}
+    @if (session('CORRECTO'))
+        <script>
+            $(function() {
+                new PNotify({
+                    title: 'ÉXITO',
+                    text: "{{ session('CORRECTO') }}",
+                    type: 'success',
+                    styling: 'bootstrap3'
+                });
+            });
+        </script>
+    @endif
+    @if (session('INCORRECTO'))
+        <script>
+            $(function() {
+                new PNotify({
+                    title: 'ERROR',
+                    text: "{{ session('INCORRECTO') }}",
+                    type: 'error',
+                    styling: 'bootstrap3'
+                });
+            });
+        </script>
+    @endif
 
 </body>
-
 </html>
