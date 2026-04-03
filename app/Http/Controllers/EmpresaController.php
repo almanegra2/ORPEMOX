@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\Empresa;
 use Illuminate\Support\Facades\Storage;
 
 class EmpresaController extends Controller
@@ -13,13 +13,7 @@ class EmpresaController extends Controller
      */
     public function index()
     {
-        try {
-            $sql = DB::select('select * from empresa');
-        } catch (\Throwable $th) {
-            // if query fails return empty array so view does not break
-            $sql = [];
-        }
-
+        $sql = Empresa::all();
         return view('vistas.empresa.empresa', compact('sql'));
     }
     /**
@@ -28,30 +22,17 @@ class EmpresaController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $sql = DB::update(
-                'update empresa set nombre=?, telefono=?, ubicacion=?, ruc=?, correo=? where id_empresa=?',
-                [
-                    $request->nombre,
-                    $request->telefono,
-                    $request->ubicacion,
-                    $request->ruc,
-                    $request->correo,
-                    $id,
-                ]
-            );
-            if ($sql === 0) {
-                // treat 0 rows affected as success to match previous behaviour
-                $sql = 1;
-            }
-        } catch (\Throwable $th) {
-            $sql = 0;
-        }
-
-        if ($sql === 1) {
+            $empresa = Empresa::findOrFail($id);
+            $empresa->nombre = $request->nombre;
+            $empresa->telefono = $request->telefono;
+            $empresa->ubicacion = $request->ubicacion;
+            $empresa->ruc = $request->ruc;
+            $empresa->correo = $request->correo;
+            $empresa->save();
             return back()->with('CORRECTO', 'Datos modificados correctamente');
+        } catch (\Throwable $th) {
+            return back()->with('INCORRECTO', 'Error al modificar');
         }
-
-        return back()->with('INCORRECTO', 'Error al modificar');
     }
     /**
      * Replace the empresa logo image.
@@ -64,27 +45,24 @@ class EmpresaController extends Controller
 
         $file = $request->file('foto');
         $nombrearchivo = 'logo.' . strtolower($file->getClientOriginalExtension());
-        $diskPath = 'public/empresa/' . $nombrearchivo;
 
-        // delete existing logo if present
-        $existing = DB::table('empresa')->value('foto');
-        if ($existing) {
-            Storage::delete('public/empresa/' . $existing);
+        $empresa = Empresa::first();
+        if ($empresa && $empresa->foto) {
+            Storage::delete('public/empresa/' . $empresa->foto);
         }
 
-        // store new file using Storage facade
         $stored = Storage::putFileAs('public/empresa', $file, $nombrearchivo);
 
         try {
-            $actualizarcampo = DB::update('update empresa set foto=?', [$nombrearchivo]);
-            if ($actualizarcampo === 0) {
-                $actualizarcampo = 1;
+            if ($empresa) {
+                $empresa->foto = $nombrearchivo;
+                $empresa->save();
             }
         } catch (\Throwable $th) {
-            $actualizarcampo = 0;
+            return back()->with('INCORRECTO', 'Error al actualizar el logo');
         }
 
-        if ($stored && $actualizarcampo) {
+        if ($stored) {
             return back()->with('CORRECTO', 'Logo actualizado correctamente');
         }
 
@@ -95,23 +73,16 @@ class EmpresaController extends Controller
      */
     public function eliminarLogo()
     {
-        $nombrelogo = DB::table('empresa')->value('foto');
-
+        $empresa = Empresa::first();
         $deleted = true;
-        if ($nombrelogo) {
-            $deleted = Storage::delete('public/empresa/' . $nombrelogo);
+        if ($empresa && $empresa->foto) {
+            $deleted = Storage::delete('public/empresa/' . $empresa->foto);
+            $empresa->foto = '';
+            $empresa->save();
         }
-
-        try {
-            $actualizarcampo = DB::update("update empresa set foto='' ");
-        } catch (\Throwable $th) {
-            $actualizarcampo = false;
-        }
-
-        if ($deleted && $actualizarcampo) {
+        if ($deleted) {
             return back()->with('CORRECTO', 'Logo eliminado correctamente');
         }
-
         return back()->with('INCORRECTO', 'Error al eliminar el logo');
     }
 

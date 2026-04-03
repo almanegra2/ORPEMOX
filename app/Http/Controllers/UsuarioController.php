@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Models\Usuario;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -94,16 +95,13 @@ class UsuarioController extends Controller
     public function destroy($id)
     {
         try {
-            $usuario = DB::table("usuario")->where("id_usuario", $id)->first();
-            if ($usuario) {
-                if ($usuario->foto) {
-                    $rutaFoto = public_path("storage/FOTO-USUARIOS/" . $usuario->foto);
-                    if (file_exists($rutaFoto)) { unlink($rutaFoto); }
-                }
-                DB::table("usuario")->where("id_usuario", $id)->delete();
-                return back()->with("CORRECTO", "Usuario borrado permanentemente");
+            $usuario = Usuario::findOrFail($id);
+            if ($usuario->foto) {
+                $rutaFoto = public_path("storage/FOTO-USUARIOS/" . $usuario->foto);
+                if (file_exists($rutaFoto)) { unlink($rutaFoto); }
             }
-            return back()->with("INCORRECTO", "No se encontró el usuario");
+            $usuario->delete();
+            return back()->with("CORRECTO", "Usuario borrado permanentemente");
         } catch (\Throwable $th) {
             return back()->with("INCORRECTO", "No se puede eliminar: El usuario tiene registros asociados.");
         }
@@ -114,17 +112,15 @@ class UsuarioController extends Controller
         $request->validate(["txtfoto" => "required|image|max:2048"]);
 
         try {
+            $usuario = Usuario::findOrFail($request->txtid);
             $foto = $request->file("txtfoto");
-            $nombreFoto = "usuario_" . $request->txtid . "_" . time() . "." . $foto->getClientOriginalExtension();
-            $usuario = DB::table("usuario")->where("id_usuario", $request->txtid)->first();
-            
+            $nombreFoto = "usuario_" . $usuario->id_usuario . "_" . time() . "." . $foto->getClientOriginalExtension();
             if ($usuario->foto && file_exists(public_path("storage/FOTO-USUARIOS/" . $usuario->foto))) {
                 unlink(public_path("storage/FOTO-USUARIOS/" . $usuario->foto));
             }
-
             $foto->move(public_path("storage/FOTO-USUARIOS"), $nombreFoto);
-            DB::table("usuario")->where("id_usuario", $request->txtid)->update(["foto" => $nombreFoto]);
-            
+            $usuario->foto = $nombreFoto;
+            $usuario->save();
             return back()->with("CORRECTO", "Foto actualizada");
         } catch (\Throwable $th) {
             return back()->with("INCORRECTO", "Error: " . $th->getMessage());
@@ -134,12 +130,12 @@ class UsuarioController extends Controller
     public function eliminarFotoUsuario(Request $request)
     {
         try {
-            // El input se llama 'id' en tu formulario del modal ver foto
-            $usuario = DB::table("usuario")->where("id_usuario", $request->id)->first();
-            if ($usuario && $usuario->foto) {
+            $usuario = Usuario::findOrFail($request->id);
+            if ($usuario->foto) {
                 $ruta = public_path("storage/FOTO-USUARIOS/" . $usuario->foto);
                 if (file_exists($ruta)) { unlink($ruta); }
-                DB::table("usuario")->where("id_usuario", $request->id)->update(["foto" => null]);
+                $usuario->foto = null;
+                $usuario->save();
                 return back()->with("CORRECTO", "Foto eliminada");
             }
             return back()->with("INCORRECTO", "No hay foto para eliminar");

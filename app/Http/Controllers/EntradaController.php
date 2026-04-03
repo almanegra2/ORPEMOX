@@ -3,29 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\Entrada;
+use App\Models\Producto;
+use App\Models\Proveedor;
 
 class EntradaController extends Controller
 {
     public function index()
     {
-        $datos = DB::select("
-            SELECT e.*, p.nombre AS producto_nombre, pr.nombre AS proveedor_nombre, pr.apellido AS proveedor_apellido
-            FROM entrada e
-            INNER JOIN producto p ON e.id_producto = p.id_producto
-            INNER JOIN proveedor pr ON e.id_proveedor = pr.id_proveedor
-        ");
-
-        $producto = DB::select("SELECT id_producto, nombre FROM producto");
-        $proveedor = DB::select("SELECT id_proveedor, nombre, apellido FROM proveedor");
-
+        $datos = Entrada::with(['producto', 'proveedor'])->get();
+        $producto = Producto::select('id_producto', 'nombre')->get();
+        $proveedor = Proveedor::select('id_proveedor', 'nombre', 'apellido')->get();
         return view('vistas.entradas.indexEntrada', compact('datos', 'producto', 'proveedor'));
     }
 
     public function create()
     {
-        $producto = DB::select("SELECT id_producto, nombre FROM producto");
-        $proveedor = DB::select("SELECT id_proveedor, nombre, apellido FROM proveedor");
+        $producto = Producto::select('id_producto', 'nombre')->get();
+        $proveedor = Proveedor::select('id_proveedor', 'nombre', 'apellido')->get();
         return view('vistas.entradas.registroEntrada', compact('producto', 'proveedor'));
     }
 
@@ -35,26 +30,22 @@ class EntradaController extends Controller
             $prod_nombre = trim($request->producto_nombre);
             $prov_nombre = trim($request->proveedor_nombre);
 
-            // Resolver producto por nombre
-            $producto = DB::table('producto')->where('nombre', $prod_nombre)->first();
+            $producto = Producto::where('nombre', $prod_nombre)->first();
             if (!$producto) {
-                $disponibles = DB::table('producto')->limit(5)->pluck('nombre')->implode(', ');
+                $disponibles = Producto::limit(5)->pluck('nombre')->implode(', ');
                 return back()->with('INCORRECTO', "El producto '$prod_nombre' no existe en la base de datos. Disponibles: $disponibles...");
             }
 
-            // Resolver proveedor (Nombre solo o Nombre + Apellido)
-            $proveedor = DB::table('proveedor')
-                ->where(function($query) use ($prov_nombre) {
-                    $query->where('nombre', $prov_nombre)
-                          ->orWhereRaw("TRIM(CONCAT(nombre, ' ', IFNULL(apellido, ''))) = ?", [$prov_nombre]);
-                })->first();
-            
+            $proveedor = Proveedor::where(function($query) use ($prov_nombre) {
+                $query->where('nombre', $prov_nombre)
+                      ->orWhereRaw("TRIM(CONCAT(nombre, ' ', IFNULL(apellido, ''))) = ?", [$prov_nombre]);
+            })->first();
             if (!$proveedor) {
-                $disponibles = DB::table('proveedor')->limit(5)->selectRaw("TRIM(CONCAT(nombre, ' ', IFNULL(apellido, ''))) as full_name")->pluck('full_name')->implode(', ');
+                $disponibles = Proveedor::limit(5)->selectRaw("TRIM(CONCAT(nombre, ' ', IFNULL(apellido, ''))) as full_name")->pluck('full_name')->implode(', ');
                 return back()->with('INCORRECTO', "El proveedor '$prov_nombre' no existe. Registrados: $disponibles... Debes registrarlo primero.");
             }
 
-            DB::table('entrada')->insert([
+            Entrada::create([
                 'id_producto' => $producto->id_producto,
                 'id_proveedor' => $proveedor->id_proveedor,
                 'cantidad' => $request->cantidad,
@@ -73,32 +64,28 @@ class EntradaController extends Controller
             $prod_nombre = trim($request->producto_nombre);
             $prov_nombre = trim($request->proveedor_nombre);
 
-            // Resolver producto por nombre
-            $producto = DB::table('producto')->where('nombre', $prod_nombre)->first();
+            $producto = Producto::where('nombre', $prod_nombre)->first();
             if (!$producto) {
-                $disponibles = DB::table('producto')->limit(5)->pluck('nombre')->implode(', ');
+                $disponibles = Producto::limit(5)->pluck('nombre')->implode(', ');
                 return back()->with('INCORRECTO', "El producto '$prod_nombre' no existe. Disponibles: $disponibles...");
             }
 
-            // Resolver proveedor
-            $proveedor = DB::table('proveedor')
-                ->where(function($query) use ($prov_nombre) {
-                    $query->where('nombre', $prov_nombre)
-                          ->orWhereRaw("TRIM(CONCAT(nombre, ' ', IFNULL(apellido, ''))) = ?", [$prov_nombre]);
-                })->first();
-            
+            $proveedor = Proveedor::where(function($query) use ($prov_nombre) {
+                $query->where('nombre', $prov_nombre)
+                      ->orWhereRaw("TRIM(CONCAT(nombre, ' ', IFNULL(apellido, ''))) = ?", [$prov_nombre]);
+            })->first();
             if (!$proveedor) {
-                $disponibles = DB::table('proveedor')->limit(5)->selectRaw("TRIM(CONCAT(nombre, ' ', IFNULL(apellido, ''))) as full_name")->pluck('full_name')->implode(', ');
+                $disponibles = Proveedor::limit(5)->selectRaw("TRIM(CONCAT(nombre, ' ', IFNULL(apellido, ''))) as full_name")->pluck('full_name')->implode(', ');
                 return back()->with('INCORRECTO', "El proveedor '$prov_nombre' no existe. Registrados: $disponibles...");
             }
 
-            DB::table('entrada')->where('id_entrada', $id)->update([
-                'id_producto' => $producto->id_producto,
-                'id_proveedor' => $proveedor->id_proveedor,
-                'cantidad' => $request->cantidad,
-                'precio' => $request->precio,
-                'fecha' => $request->fecha,
-            ]);
+            $entrada = Entrada::findOrFail($id);
+            $entrada->id_producto = $producto->id_producto;
+            $entrada->id_proveedor = $proveedor->id_proveedor;
+            $entrada->cantidad = $request->cantidad;
+            $entrada->precio = $request->precio;
+            $entrada->fecha = $request->fecha;
+            $entrada->save();
             return redirect()->route('entradas.index')->with('CORRECTO', 'Entrada actualizada con éxito');
         } catch (\Exception $e) {
             return back()->with('INCORRECTO', 'Error al actualizar: ' . $e->getMessage());
@@ -109,7 +96,8 @@ class EntradaController extends Controller
     public function destroy($id)
     {
         try {
-            DB::table('entrada')->where('id_entrada', $id)->delete();
+            $entrada = Entrada::findOrFail($id);
+            $entrada->delete();
             return redirect()->route('entradas.index')->with('CORRECTO', 'Entrada eliminada correctamente');
         } catch (\Exception $e) {
             return back()->with('INCORRECTO', 'Error al eliminar: ' . $e->getMessage());

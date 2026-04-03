@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Models\Producto;
+use App\Models\Categoria;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 
 class ProductoController extends Controller
 {
@@ -14,18 +14,14 @@ class ProductoController extends Controller
      */
     public function index()
     {
-        $categoria = DB::select("select * from categoria");
-        $datos = DB::table("producto")
-            ->join("categoria", "producto.id_categoria", "=", "categoria.id_categoria")
-            ->select("producto.*", "categoria.nombre as categoria")
-            ->get();
-
+        $datos = Producto::with('categoria')->get();
+        $categoria = Categoria::all();
         return view("vistas.productos.indexproducto", compact("datos", "categoria"));
     }
 
     public function create()
     {
-        $categorias = DB::select("select * from categoria");
+        $categorias = Categoria::all();
         return view("vistas.productos.registroProductos", compact("categorias"));
     }
 
@@ -35,7 +31,7 @@ class ProductoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            "txtcategoria" => "required", // Ahora es el NOMBRE de la categoría
+            "txtcategoria" => "required",
             "txtcodigoproducto" => "required",
             "txtnombreproducto" => "required",
             "txtprecioproducto" => "required|numeric",
@@ -43,52 +39,43 @@ class ProductoController extends Controller
             "txtfoto" => "nullable|image|mimes:png,jpg,jpeg|max:2048"
         ]);
 
-        // Resolver Categoría por nombre
         $cat_nombre = trim($request->txtcategoria);
-        $categoria = DB::table('categoria')->where('nombre', $cat_nombre)->first();
+        $categoria = Categoria::where('nombre', $cat_nombre)->first();
         if (!$categoria) {
-            $disponibles = DB::table('categoria')->limit(5)->pluck('nombre')->implode(', ');
+            $disponibles = Categoria::limit(5)->pluck('nombre')->implode(', ');
             return back()->with("INCORRECTO", "La categoría '$cat_nombre' no existe. Disponibles: $disponibles... Debes crearla primero.");
         }
 
-        // Verificar duplicidad de código
-        $existe = DB::table("producto")->where("codigo", $request->txtcodigoproducto)->exists();
-        if ($existe) {
+        if (Producto::where("codigo", $request->txtcodigoproducto)->exists()) {
             return back()->with("INCORRECTO", "El código del producto ya existe");
         }
 
-        try {
-            $id_producto = DB::table("producto")->insertGetId([
-                "id_categoria" => $categoria->id_categoria,
-                "codigo" => $request->txtcodigoproducto,
-                "nombre" => $request->txtnombreproducto,
-                "precio" => $request->txtprecioproducto,
-                "stock" => $request->txtstock,
-                "descripcion" => $request->txtdescripcion,
-                "estado" => "1"
-            ]);
+        $producto = new Producto([
+            "id_categoria" => $categoria->id_categoria,
+            "codigo" => $request->txtcodigoproducto,
+            "nombre" => $request->txtnombreproducto,
+            "precio" => $request->txtprecioproducto,
+            "stock" => $request->txtstock,
+            "descripcion" => $request->txtdescripcion,
+            "estado" => 1
+        ]);
+        $producto->save();
 
-            // Manejo de la foto
-            if ($request->hasFile("txtfoto")) {
-                $foto = $request->file("txtfoto");
-                $nombreFoto = $id_producto . "_" . time() . "." . $foto->getClientOriginalExtension();
-                $foto->move(public_path("storage/FOTO-PRODUCTOS"), $nombreFoto);
-                DB::table("producto")->where("id_producto", $id_producto)->update(["foto" => $nombreFoto]);
-            }
-
-            return redirect()->route('productos.index')->with("CORRECTO", "Producto registrado correctamente");
-        } catch (\Throwable $th) {
-            return back()->with("INCORRECTO", "Error al registrar: " . $th->getMessage());
+        if ($request->hasFile("txtfoto")) {
+            $foto = $request->file("txtfoto");
+            $nombreFoto = $producto->id_producto . "_" . time() . "." . $foto->getClientOriginalExtension();
+            $foto->move(public_path("storage/FOTO-PRODUCTOS"), $nombreFoto);
+            $producto->foto = $nombreFoto;
+            $producto->save();
         }
+
+        return redirect()->route('productos.index')->with("CORRECTO", "Producto registrado correctamente");
     }
 
     public function show(string $id)
     {
-        $datos = DB::select("select producto.*, categoria.nombre as nombre_categoria from producto 
-                            inner join categoria on producto.id_categoria = categoria.id_categoria 
-                            where id_producto = ?", [$id]);
-        
-        $categoria = DB::select("select * from categoria");
+        $datos = Producto::with('categoria')->where('id_producto', $id)->get();
+        $categoria = Categoria::all();
         return view("vistas.productos.showProducto", compact("datos", "categoria"));
     }
 
@@ -105,32 +92,28 @@ class ProductoController extends Controller
             "txtstock" => "required|numeric",
         ]);
 
-        // Resolver Categoría
         $cat_nombre = trim($request->txtcategoria);
-        $categoria = DB::table('categoria')->where('nombre', $cat_nombre)->first();
+        $categoria = Categoria::where('nombre', $cat_nombre)->first();
         if (!$categoria) {
             return back()->with("INCORRECTO", "Categoría '$cat_nombre' no encontrada.");
         }
 
-        // Verificar código duplicado ignorando el producto actual
-        $duplicado = DB::table("producto")
-            ->where("codigo", $request->txtcodigoproducto)
+        $duplicado = Producto::where("codigo", $request->txtcodigoproducto)
             ->where("id_producto", "!=", $id)
             ->exists();
-
         if ($duplicado) {
             return back()->with("INCORRECTO", "El código ya pertenece a otro producto");
         }
 
         try {
-            DB::table("producto")->where("id_producto", $id)->update([
-                "id_categoria" => $categoria->id_categoria,
-                "codigo" => $request->txtcodigoproducto,
-                "nombre" => $request->txtnombreproducto,
-                "precio" => $request->txtprecioproducto,
-                "stock" => $request->txtstock,
-                "descripcion" => $request->txtdescripcion,
-            ]);
+            $producto = Producto::findOrFail($id);
+            $producto->id_categoria = $categoria->id_categoria;
+            $producto->codigo = $request->txtcodigoproducto;
+            $producto->nombre = $request->txtnombreproducto;
+            $producto->precio = $request->txtprecioproducto;
+            $producto->stock = $request->txtstock;
+            $producto->descripcion = $request->txtdescripcion;
+            $producto->save();
             return redirect()->route('productos.index')->with("CORRECTO", "Producto actualizado correctamente");
         } catch (\Throwable $th) {
             return back()->with("INCORRECTO", "Error al actualizar");
@@ -143,14 +126,12 @@ class ProductoController extends Controller
     public function destroy(string $id)
     {
         try {
-            // Primero eliminamos la foto física si existe
-            $producto = DB::table("producto")->where("id_producto", $id)->first();
-            if ($producto && $producto->foto) {
+            $producto = Producto::findOrFail($id);
+            if ($producto->foto) {
                 $ruta = public_path("storage/FOTO-PRODUCTOS/" . $producto->foto);
                 if (File::exists($ruta)) { File::delete($ruta); }
             }
-
-            DB::table("producto")->where("id_producto", $id)->delete();
+            $producto->delete();
             return redirect()->route('productos.index')->with("CORRECTO", "Producto eliminado correctamente");
         } catch (\Throwable $th) {
             return redirect()->route('productos.index')->with("INCORRECTO", "No se puede eliminar el producto (posiblemente tiene ventas asociadas)");
@@ -167,11 +148,9 @@ class ProductoController extends Controller
             return response()->json(["success" => false, "dato" => []]);
         }
 
-        $datos = DB::table("producto")
-            ->join("categoria", "producto.id_categoria", "=", "categoria.id_categoria")
-            ->select("producto.*", "categoria.nombre as categoria")
-            ->where("codigo", "like", "%$term%")
-            ->orWhere("producto.nombre", "like", "%$term%")
+        $datos = Producto::with('categoria')
+            ->where('codigo', 'like', "%$term%")
+            ->orWhere('nombre', 'like', "%$term%")
             ->get();
 
         return response()->json(["success" => true, "dato" => $datos]);
@@ -186,8 +165,7 @@ class ProductoController extends Controller
         $request->validate(["txtfoto" => "required|image|max:2048"]);
 
         try {
-            // Eliminar foto anterior si existe
-            $producto = DB::table("producto")->where("id_producto", $id)->first();
+            $producto = Producto::findOrFail($id);
             if ($producto->foto) {
                 $rutaAnterior = public_path("storage/FOTO-PRODUCTOS/" . $producto->foto);
                 if (File::exists($rutaAnterior)) { File::delete($rutaAnterior); }
@@ -196,9 +174,8 @@ class ProductoController extends Controller
             $foto = $request->file("txtfoto");
             $nombreFoto = $id . "_" . time() . "." . $foto->getClientOriginalExtension();
             $foto->move(public_path("storage/FOTO-PRODUCTOS"), $nombreFoto);
-            
-            DB::table("producto")->where("id_producto", $id)->update(["foto" => $nombreFoto]);
-            
+            $producto->foto = $nombreFoto;
+            $producto->save();
             return back()->with("CORRECTO", "Foto actualizada correctamente");
         } catch (\Throwable $th) {
             return back()->with("INCORRECTO", "Error al procesar la imagen");
@@ -211,11 +188,12 @@ class ProductoController extends Controller
     public function eliminarFotoProducto($id)
     {
         try {
-            $producto = DB::table("producto")->where("id_producto", $id)->first();
-            if ($producto && $producto->foto) {
+            $producto = Producto::findOrFail($id);
+            if ($producto->foto) {
                 $ruta = public_path("storage/FOTO-PRODUCTOS/" . $producto->foto);
                 if (File::exists($ruta)) { File::delete($ruta); }
-                DB::table("producto")->where("id_producto", $id)->update(["foto" => null]);
+                $producto->foto = null;
+                $producto->save();
             }
             return back()->with("CORRECTO", "Foto eliminada correctamente");
         } catch (\Throwable $th) {
