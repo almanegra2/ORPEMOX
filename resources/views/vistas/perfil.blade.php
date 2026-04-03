@@ -1,201 +1,128 @@
 @extends('layouts/app')
 
-@section('titulo', 'Mi perfil')
-
-<style>
-    .contenedor {
-        background: white;
-        padding: 15px;
-        display: flex;
-        justify-content: space-around;
-        gap: 20px;
-        align-items: center;
-    }
-
-    .img {
-        width: 250px;
-        height: 250px;
-        border-radius: 250px;
-        object-fit: cover;
-    }
-
-    @media screen and (max-width: 600px) {
-        .contenedor {
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-    }
-</style>
+@section('titulo', 'Mi Perfil')
 
 @section('content')
 
-    @if (session('mensaje'))
-        <script>
-            $(function () {
-                new PNotify({
-                    title: "CORRECTO",
-                    text: "{{ session('mensaje') }}",
-                    type: "success",
-                    styling: "bootstrap3"
-                });
-            });
-        </script>
-    @endif
+<div class="px-4 py-2">
+    <div class="glass-panel p-4 mb-4">
+        <h2 class="text-center mb-5 mt-2" style="color: var(--accent-color); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">
+            <i class="fas fa-user-circle mr-2"></i> PERFIL DE USUARIO
+        </h2>
 
-    @if (session('error'))
-        <script>
-            $(function () {
-                new PNotify({
-                    title: "ERROR",
-                    text: "{{ session('error') }}",
-                    type: "error",
-                    styling: "bootstrap3"
-                });
-            });
-        </script>
-    @endif
-        
-    <h4 class="text-center text-secondary">MI PERFIL</h4>
-
-    @foreach ($datos as $item)
-    <div class="contenedor">
-        
-        <div>
-            @if ($item->foto != null)
-                <img class="img" src="{{ asset('storage/FOTOS-PERFIL-USUARIO/'.$item->foto) }}" alt="">
-            @else
-                <img class="img" src="{{ asset('images/img.jpg') }}" alt="">
-            @endif
-        </div>
-
-        <div>
-            <h6><b>Modificar imagen</b></h6>
-
-            {{-- FORM ACTUALIZAR --}}
-            <form action="{{ route('perfil.actualizarIMG') }}" 
-                  method="POST" 
-                  enctype="multipart/form-data">
-                @csrf
-
-                <div class="alert alert-secondary">
-                    Selecciona una imagen no muy pesada y en formato válido (.jpg, .jpeg, .png)
+        @foreach ($datos as $item)
+            {{-- SECCIÓN SUPERIOR: FOTO Y ACCIONES --}}
+            <div class="row align-items-center mb-5 pb-4" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <div class="col-12 col-md-4 text-center mb-4 mb-md-0">
+                    <div class="d-inline-block p-2" style="background: rgba(245, 158, 11, 0.1); border-radius: 50%; border: 2px solid var(--accent-color); box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);">
+                        @if ($item->foto != null)
+                            <img src="{{ asset('storage/FOTOS-PERFIL-USUARIO/'.$item->foto) }}" alt="Perfil" style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover;">
+                        @else
+                            <img src="{{ asset('images/img.jpg') }}" alt="Perfil" style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover;">
+                        @endif
+                    </div>
                 </div>
 
-                <div>
-                    <input type="file" 
-                           class="input form-control-file mb-3" 
-                           name="foto"
-                           accept=".jpg,.jpeg,.png">
+                <div class="col-12 col-md-8">
+                    <div class="p-4" style="background: rgba(255,255,255,0.02); border-radius: 15px; border: 1px solid rgba(255,255,255,0.05);">
+                        <h5 class="text-white mb-3" style="font-weight: 600;">
+                            <i class="fas fa-camera mr-2 text-warning"></i> Actualizar Foto de Perfil
+                        </h5>
+                        
+                        <form action="{{ route('perfil.actualizarIMG') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="mb-3">
+                                <label class="text-muted small mb-2 d-block">Selecciona una imagen (.jpg, .jpeg, .png)</label>
+                                <input type="file" name="foto" class="form-control" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 10px; height: auto;" accept=".jpg,.jpeg,.png">
+                                @error('foto')
+                                    <small class="text-danger mt-1 d-block">{{ $message }}</small>
+                                @enderror
+                            </div>
 
-                    @error('foto')
-                        <span class="text-danger">{{ $message }}</span>
-                    @enderror
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary btn-glow px-4">
+                                    <i class="fas fa-sync-alt mr-2"></i> Cambiar Foto
+                                </button>
+                                <button type="button" onclick="confirmarEliminacion()" class="btn btn-danger px-4">
+                                    <i class="fas fa-trash-alt mr-2"></i> Eliminar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
+            </div>
 
-                <div class="text-right">
-                    <button type="submit" class="btn btn-success btn-rounded">
-                        Modificar
-                    </button>
-
-                    <button type="button" 
-                            onclick="confirmarEliminacion()" 
-                            class="btn btn-danger btn-rounded">
-                        Eliminar foto
-                    </button>
-                </div>
-            </form>
-
-            {{-- FORM ELIMINAR --}}
-            <form action="{{ route('perfil.eliminarFotoPerfil') }}" 
-                  method="POST" 
-                  id="formEliminarFoto">
+            {{-- FORM ELIMINAR FOTO (HIDDEN) --}}
+            <form action="{{ route('perfil.eliminarFotoPerfil') }}" method="POST" id="formEliminarFoto" class="d-none">
                 @csrf
                 @method('DELETE')
             </form>
 
-        </div>
+            {{-- FORM DATOS PERSONALES --}}
+            <form action="{{ route('perfil.actualizarDatos') }}" method="POST">
+                @csrf
+                <div class="row">
+                    <div class="col-12 col-md-6 mb-4">
+                        <label class="form-label text-white ml-1">Nombres</label>
+                        <input type="text" name="nombre" class="form-control input__text" value="{{ old('nombre', $item->nombre) }}" required>
+                        @error('nombre') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-12 col-md-6 mb-4">
+                        <label class="form-label text-white ml-1">Apellidos</label>
+                        <input type="text" name="apellido" class="form-control input__text" value="{{ old('apellido', $item->apellido) }}" required>
+                        @error('apellido') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-12 col-md-6 mb-4">
+                        <label class="form-label text-white ml-1">Nombre de Usuario</label>
+                        <input type="text" name="usuario" class="form-control input__text" value="{{ old('usuario', $item->usuario) }}" required>
+                        @error('usuario') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
+                    </div>
+
+                    <div class="col-12 col-md-6 mb-4">
+                        <label class="form-label text-white ml-1">Teléfono</label>
+                        <input type="text" name="telefono" class="form-control input__text" value="{{ old('telefono', $item->telefono) }}">
+                    </div>
+
+                    <div class="col-12 col-md-6 mb-4">
+                        <label class="form-label text-white ml-1">Dirección</label>
+                        <input type="text" name="direccion" class="form-control input__text" value="{{ old('direccion', $item->direccion) }}">
+                    </div>
+
+                    <div class="col-12 col-md-6 mb-4">
+                        <label class="form-label text-white ml-1">Correo Electrónico</label>
+                        <input type="email" name="correo" class="form-control input__text" value="{{ old('correo', $item->correo) }}" required>
+                        @error('correo') <small class="text-danger d-block mt-1">{{ $message }}</small> @enderror
+                    </div>
+                </div>
+
+                <hr style="border-top: 1px solid rgba(255,255,255,0.05); margin-bottom: 30px;">
+
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-glow px-5 py-2" style="font-size: 1.1rem; font-weight: 700;">
+                        <i class="fas fa-save mr-2"></i> GUARDAR CAMBIOS
+                    </button>
+                </div>
+            </form>
+        @endforeach
     </div>
-
-
-    {{-- FORM DATOS --}}
-    <form action="{{route("perfil.actualizarDatos")}}" method="POST" class="bg-white p-3 mt-3">
-        <div class="row">
-
-            @method("put")
-
-            @csrf
-
-            <div class="fl-flex-label col-12 col-lg-6 mb-4">
-                <input type="text" class="input input__text" 
-                       placeholder="Nombres" value="{{$item->nombre}}" name="nombre">
-                       @error('nombre')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-            </div>
-
-            <div class="fl-flex-label col-12 col-lg-6 mb-4">
-                <input type="text" class="input input__text" 
-                       placeholder="Apellidos" value="{{$item->apellido}}" name="apellido">
-                       @error('apellido')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-            </div> 
-
-            <div class="fl-flex-label col-12 col-lg-6 mb-4">
-                <input type="text" class="input input__text" 
-                       placeholder="Usuario" value="{{$item->usuario}}" name="usuario">
-                       @error('usuario')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-            </div>
-
-            <div class="fl-flex-label col-12 col-lg-6 mb-4">
-                <input type="text" class="input input__text" 
-                       placeholder="Teléfono" value="{{$item->telefono}}" name="telefono">
-            </div>
-
-            <div class="fl-flex-label col-12 col-lg-6 mb-4">
-                <input type="text" class="input input__text" 
-                       placeholder="Dirección" value="{{$item->direccion}}" name="direccion">
-            </div>
-
-            <div class="fl-flex-label col-12 col-lg-6 mb-4">
-                <input type="email" class="input input__text" 
-                       placeholder="Correo electrónico" value="{{$item->correo}}" name="correo">
-                       @error('correo')
-                            <small class="text-danger">{{ $message }}</small>
-                        @enderror
-            </div>
-
-            <div class="text-right col-12">
-                <button type="submit" class="btn btn-primary btn-rounded">
-                    Guardar cambios
-                </button>
-            </div>
-        </div>
-    </form>
-
-    @endforeach
+</div>
 
 @endsection
 
-
-{{-- SWEETALERT --}}
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+@push('scripts')
 <script>
 function confirmarEliminacion() {
     Swal.fire({
-        title: '¿Está seguro?',
-        text: '¡No podrá recuperar esta imagen!',
+        title: '¿Eliminar foto de perfil?',
+        text: 'Se restablecerá la imagen por defecto.',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#28a745',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Aceptar',
-        cancelButtonText: 'Salir'
+        confirmButtonColor: '#ff4444',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
             document.getElementById('formEliminarFoto').submit();
@@ -203,3 +130,4 @@ function confirmarEliminacion() {
     });
 }
 </script>
+@endpush

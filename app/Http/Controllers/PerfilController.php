@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class PerfilController extends Controller
 {
@@ -33,14 +34,21 @@ class PerfilController extends Controller
         $idUsuario = Auth::user()->id_usuario;
 
         $nombreArchivo = $idUsuario . "." . strtolower($file->getClientOriginalExtension());
-        $ruta = storage_path("app/public/FOTOS-PERFIL-USUARIO/" . $nombreArchivo);
+        
+        // Delete old photo if it exists
+        $user = Auth::user();
+        if ($user->foto) {
+            Storage::disk('public')->delete('FOTOS-PERFIL-USUARIO/' . $user->foto);
+        }
 
-        $res = move_uploaded_file($file->getPathName(), $ruta);
+        // Store new photo
+        $res = $file->storeAs('FOTOS-PERFIL-USUARIO', $nombreArchivo, 'public');
 
         try {
-            $actualizarFoto = DB::update("update usuario set foto='$nombreArchivo' where id_usuario=$idUsuario");
+            $actualizarFoto = DB::update("update usuario set foto=? where id_usuario=?", [$nombreArchivo, $idUsuario]);
 
             if ($actualizarFoto == 0) {
+                // If 0 rows affected (same filename), we still count it as success if the file was stored
                 $actualizarFoto = 1;
             }
 
@@ -67,12 +75,9 @@ class PerfilController extends Controller
             return back()->with("error", "No hay imagen para eliminar");
         }
 
-        $ruta = storage_path("app/public/FOTOS-PERFIL-USUARIO/" . $nombreFoto);
-
         try {
-            if (file_exists($ruta)) {
-                unlink($ruta);
-            }
+            // Use Storage facade to delete
+            Storage::disk('public')->delete('FOTOS-PERFIL-USUARIO/' . $nombreFoto);
 
             DB::table('usuario')
                 ->where('id_usuario', $usuario->id_usuario)
@@ -139,7 +144,7 @@ class PerfilController extends Controller
         // 1. Validar campos (Usando nombres con guion bajo para que coincidan con la vista corregida)
         $request->validate([
             'clave_actual' => 'required',
-            'clave_nueva' => 'required'
+            'clave_nueva' => ['required', \Illuminate\Validation\Rules\Password::min(8)->max(12)->mixedCase()->numbers()->symbols()]
         ]);
 
         $idUsuario = Auth::user()->id_usuario;

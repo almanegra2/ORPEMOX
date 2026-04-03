@@ -6,67 +6,54 @@
     <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('fontawesome/css/all.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('inicio/css/login-modern.css') }}">
-    <title>Inicio de sesión - SENA</title>
+    <title>Restablecer Contraseña - SENA</title>
 </head>
 <body>
     <div class="login-wrapper">
-        <!-- Fondo con overlay -->
         <div class="background-overlay"></div>
         
-        <!-- Contenedor principal -->
         <div class="login-container">
-            <!-- Formulario glassmorphism -->
             <div class="login-box">
                 <div class="login-header">
                     <div class="avatar-circle">
-                        <img src="{{ asset('inicio/img/avatar.svg') }}" alt="Avatar">
+                        <i class="fas fa-key fa-2x" style="color: #fff; margin-top: 25px;"></i>
                     </div>
-                    <h1 class="welcome-title">BIENVENIDO</h1>
-                    <p class="subtitle">Sistema punto display</p>
+                    <h1 class="welcome-title">NUEVA CLAVE</h1>
+                    <p class="subtitle">Ingresa tu nueva contraseña</p>
                 </div>
 
-                <!-- Alertas -->
-                @if (session('mensaje'))
-                    <div class="alert alert-info" role="alert">
-                        <i class="fas fa-info-circle"></i>
-                        <small>{{ session('mensaje') }}</small>
-                    </div>
-                @endif
-
-                <!-- Formulario -->
-                <form method="POST" action="{{ route('login') }}" class="login-form">
+                <form method="POST" action="{{ route('password.update') }}" class="login-form">
                     @csrf
+                    <input type="hidden" name="token" value="{{ $token }}">
 
-                    <!-- Campo Usuario -->
                     <div class="form-group">
-                        @error('usuario')
+                        @error('correo')
                             <div class="error-message">
                                 <i class="fas fa-exclamation-circle"></i>
-                                {{ $errors->first('usuario') }}
+                                {{ $message }}
                             </div>
                         @enderror
                         <div class="input-group">
                             <span class="input-icon">
-                                <i class="fas fa-user"></i>
+                                <i class="fas fa-at"></i>
                             </span>
                             <input 
-                                type="text" 
-                                id="usuario" 
-                                name="usuario" 
-                                class="form-input @error('usuario') is-invalid @enderror"
-                                placeholder="Nombre de usuario"
-                                value="{{ old('usuario') }}"
+                                type="email" 
+                                id="correo" 
+                                name="correo" 
+                                class="form-input @error('correo') is-invalid @enderror"
+                                placeholder="Correo institucional"
+                                value="{{ $email ?? old('correo') }}"
                                 required 
-                                autocomplete="username">
+                                autofocus>
                         </div>
                     </div>
 
-                    <!-- Campo Contraseña -->
                     <div class="form-group">
                         @error('password')
                             <div class="error-message">
                                 <i class="fas fa-exclamation-circle"></i>
-                                {{ $errors->first('password') }}
+                                {{ $message }}
                             </div>
                         @enderror
                         <div class="input-group">
@@ -78,32 +65,41 @@
                                 id="password" 
                                 name="password" 
                                 class="form-input @error('password') is-invalid @enderror"
-                                placeholder="Contraseña"
-                                required 
-                                autocomplete="current-password">
-                            <span class="toggle-password" onclick="togglePassword()">
+                                placeholder="Nueva Contraseña"
+                                required>
+                            <span class="toggle-password" onclick="togglePassword('password')">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                        <small style="color: rgba(255,255,255,0.7); font-size: 11px; margin-top: 5px; display: block;">Mínimo 8 a 12 caracteres, incluye mayúscula, número y símbolo.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-icon">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input 
+                                type="password" 
+                                id="password-confirm" 
+                                name="password_confirmation" 
+                                class="form-input"
+                                placeholder="Confirmar Contraseña"
+                                required>
+                            <span class="toggle-password" onclick="togglePassword('password-confirm')">
                                 <i class="fas fa-eye"></i>
                             </span>
                         </div>
                     </div>
 
-                    <!-- Olvide contraseña -->
-                    <div class="forgot-password">
-                        @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}">¿Olvidé mi contraseña?</a>
-                        @endif
-                    </div>
-
-                    <!-- Botón Login -->
-                    <button type="submit" class="btn-login">
-                        <span>INICIAR SESIÓN</span>
-                        <i class="fas fa-arrow-right"></i>
+                    <button type="submit" class="btn-login" style="margin-top: 30px;">
+                        <span>RESTABLECER</span>
+                        <i class="fas fa-check"></i>
                     </button>
                 </form>
 
-                <!-- Footer -->
                 <div class="login-footer">
-                    <p><small>&copy; 2026 SENA. Todos los derechos reservados.</small></p>
+                    <p><small>&copy; {{ date('Y') }} SENA. Todos los derechos reservados.</small></p>
                 </div>
             </div>
         </div>
@@ -111,8 +107,8 @@
 
     <script src="{{ asset('bootstrap4/js/jquery.min.js') }}"></script>
     <script>
-        function togglePassword() {
-            const input = document.getElementById('password');
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
             const icon = event.target.closest('.toggle-password').querySelector('i');
             
             if (input.type === 'password') {
@@ -126,7 +122,6 @@
             }
         }
 
-        // Animación de entrada
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('.login-box').style.animation = 'slideUp 0.6s ease-out';
         });

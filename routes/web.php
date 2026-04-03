@@ -5,15 +5,11 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PerfilController;
 use App\Http\Controllers\EmpresaController;
-use App\Http\Controllers\PruductoController;
+use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\UsuarioController;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
+use App\Http\Controllers\EntradaController;
+use App\Http\Controllers\ClienteController;
 
 Route::get('/', function () {
     return redirect()->route('home');
@@ -23,15 +19,14 @@ Auth::routes(['verify' => true]);
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-// RUTAS PROTEGIDAS
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // PERFIL Y CONFIGURACIÓN
+    // PERFIL
     Route::controller(PerfilController::class)->group(function () {
         Route::get('mi-perfil', 'index')->name('usuario.perfil');
         Route::post('actualizar-foto-perfil', 'actualizarIMG')->name('perfil.actualizarIMG');
         Route::delete('perfil/eliminar-foto', 'eliminarFotoPerfil')->name('perfil.eliminarFotoPerfil');
-        Route::get('actualizar-datos-perfil', 'actualizarDatos')->name('perfil.actualizarDatos');
+        Route::post('actualizar-datos-perfil', 'actualizarDatos')->name('perfil.actualizarDatos');
         Route::get('cambiar-clave', 'cambiarClave')->name('usuario.cambiarClave');
         Route::post('actualizar-clave', 'actualizarClave')->name('usuario.actualizarClave');
     });
@@ -45,8 +40,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // PRODUCTOS
-    Route::resource('productos', PruductoController::class);
-    Route::controller(PruductoController::class)->group(function () {
+    Route::resource('productos', ProductoController::class);
+    Route::controller(ProductoController::class)->group(function () {
         Route::post("buscar-producto", "buscarProducto")->name("producto.buscar");
         Route::post("registrar-foto-producto", "registrarFotoProducto")->name("producto.registrarFotoProducto");
         Route::get("eliminar-foto-producto-{id}", "eliminarFotoProducto")->name("producto.eliminarFoto");
@@ -58,8 +53,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // USUARIOS
     Route::resource('usuario', UsuarioController::class);
     Route::controller(UsuarioController::class)->group(function () {
-    Route::post("registrar-foto-usuario", "registrarFotoUsuario")->name("usuario.registrarFotoUsuario");
-    Route::delete("eliminar-foto-usuario", "eliminarFotoUsuario")->name("usuario.eliminarFotoUsuario");
-});
+        Route::post("registrar-foto-usuario", "registrarFotoUsuario")->name("usuario.registrarFotoUsuario");
+        Route::post("eliminar-foto-usuario", "eliminarFotoUsuario")->name("usuario.eliminarFoto");
+    });
 
+    // CLIENTES
+    Route::resource('clientes', ClienteController::class);
+
+    // ENTRADAS (Todo en uno)
+    Route::resource('entradas', EntradaController::class);
 });

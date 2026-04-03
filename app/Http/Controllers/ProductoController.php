@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
-class PruductoController extends Controller
+class ProductoController extends Controller
 {
     /**
      * Listado de productos
@@ -35,13 +35,21 @@ class PruductoController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            "txtcategoria" => "required",
+            "txtcategoria" => "required", // Ahora es el NOMBRE de la categoría
             "txtcodigoproducto" => "required",
             "txtnombreproducto" => "required",
             "txtprecioproducto" => "required|numeric",
             "txtstock" => "required|numeric",
             "txtfoto" => "nullable|image|mimes:png,jpg,jpeg|max:2048"
         ]);
+
+        // Resolver Categoría por nombre
+        $cat_nombre = trim($request->txtcategoria);
+        $categoria = DB::table('categoria')->where('nombre', $cat_nombre)->first();
+        if (!$categoria) {
+            $disponibles = DB::table('categoria')->limit(5)->pluck('nombre')->implode(', ');
+            return back()->with("INCORRECTO", "La categoría '$cat_nombre' no existe. Disponibles: $disponibles... Debes crearla primero.");
+        }
 
         // Verificar duplicidad de código
         $existe = DB::table("producto")->where("codigo", $request->txtcodigoproducto)->exists();
@@ -51,7 +59,7 @@ class PruductoController extends Controller
 
         try {
             $id_producto = DB::table("producto")->insertGetId([
-                "id_categoria" => $request->txtcategoria,
+                "id_categoria" => $categoria->id_categoria,
                 "codigo" => $request->txtcodigoproducto,
                 "nombre" => $request->txtnombreproducto,
                 "precio" => $request->txtprecioproducto,
@@ -68,7 +76,7 @@ class PruductoController extends Controller
                 DB::table("producto")->where("id_producto", $id_producto)->update(["foto" => $nombreFoto]);
             }
 
-            return back()->with("CORRECTO", "Producto registrado correctamente");
+            return redirect()->route('productos.index')->with("CORRECTO", "Producto registrado correctamente");
         } catch (\Throwable $th) {
             return back()->with("INCORRECTO", "Error al registrar: " . $th->getMessage());
         }
@@ -81,7 +89,7 @@ class PruductoController extends Controller
                             where id_producto = ?", [$id]);
         
         $categoria = DB::select("select * from categoria");
-        return view("vistas.productos.showproducto", compact("datos", "categoria"));
+        return view("vistas.productos.showProducto", compact("datos", "categoria"));
     }
 
     /**
@@ -97,6 +105,13 @@ class PruductoController extends Controller
             "txtstock" => "required|numeric",
         ]);
 
+        // Resolver Categoría
+        $cat_nombre = trim($request->txtcategoria);
+        $categoria = DB::table('categoria')->where('nombre', $cat_nombre)->first();
+        if (!$categoria) {
+            return back()->with("INCORRECTO", "Categoría '$cat_nombre' no encontrada.");
+        }
+
         // Verificar código duplicado ignorando el producto actual
         $duplicado = DB::table("producto")
             ->where("codigo", $request->txtcodigoproducto)
@@ -109,14 +124,14 @@ class PruductoController extends Controller
 
         try {
             DB::table("producto")->where("id_producto", $id)->update([
-                "id_categoria" => $request->txtcategoria,
+                "id_categoria" => $categoria->id_categoria,
                 "codigo" => $request->txtcodigoproducto,
                 "nombre" => $request->txtnombreproducto,
                 "precio" => $request->txtprecioproducto,
                 "stock" => $request->txtstock,
                 "descripcion" => $request->txtdescripcion,
             ]);
-            return back()->with("CORRECTO", "Producto actualizado correctamente");
+            return redirect()->route('productos.index')->with("CORRECTO", "Producto actualizado correctamente");
         } catch (\Throwable $th) {
             return back()->with("INCORRECTO", "Error al actualizar");
         }

@@ -37,25 +37,45 @@ class AppServiceProvider extends ServiceProvider
         $total_producto=DB::select("select count(*) as total from producto where estado=1");
         View::share('total_producto', $total_producto[0]->total);
 
-       $venta = DB::select("
+        $total_categoria=DB::select("select count(*) as total from categoria");
+        View::share('total_categoria', $total_categoria[0]->total);
+
+        // Fetch Recent Entries (Ultimas Entradas)
+        $recent_entradas = DB::select("
+            SELECT e.*, p.nombre as producto_nombre 
+            FROM entrada e 
+            JOIN producto p ON e.id_producto = p.id_producto 
+            ORDER BY e.fecha DESC LIMIT 5
+        ");
+        View::share('recent_entradas', $recent_entradas);
+
+        // Fetch Recent Clients (Ultimos Clientes)
+        $recent_clientes = DB::select("
+            SELECT * 
+            FROM cliente 
+            ORDER BY id_cliente DESC LIMIT 5
+        ");
+        View::share('recent_clientes', $recent_clientes);
+
+       $entradas_mensuales = DB::select("
     SELECT
-        SUM(venta.pagoTotal) AS tot,
-        MONTHNAME(venta.fecha) AS fecha,
-        MONTH(venta.fecha) AS fechaN,
-        venta.total,
-        venta.id_venta
-    FROM venta
+        SUM(precio * cantidad) AS tot,
+        MONTHNAME(fecha) AS fecha,
+        MONTH(fecha) AS fechaN
+    FROM entrada
     WHERE EXTRACT(YEAR FROM fecha) = EXTRACT(YEAR FROM NOW())
-    GROUP BY MONTHNAME(venta.fecha)
-    ORDER BY MONTH(venta.fecha) ASC
+    GROUP BY MONTHNAME(fecha), MONTH(fecha)
+    ORDER BY MONTH(fecha) ASC
 ");
 $data = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-foreach ($venta as $key => $value) {
-    $data[$value->fechaN - 1] = $value->tot;
+foreach ($entradas_mensuales as $key => $value) {
+    // Array indices are 0-11, so we subtract 1 from the month number
+    // We make sure it's cast to float for JSON encoding
+    $data[(int)$value->fechaN - 1] = (float)$value->tot;
 }
 
-    View::share('ventas', $venta);
+    View::share('chart_data', $data);
 
     }
 }

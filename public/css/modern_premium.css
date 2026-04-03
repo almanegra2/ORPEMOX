@@ -1,0 +1,424 @@
+:root {
+    --primary-bg: #050505;
+    --secondary-bg: #0f0f0f;
+    --accent-color: #f59e0b; /* Vibrant Amber/Gold */
+    --accent-soft: rgba(245, 158, 11, 0.1);
+    --accent-glow: rgba(245, 158, 11, 0.4);
+    --glass-bg: rgba(15, 15, 15, 0.75);
+    --glass-border: rgba(245, 158, 11, 0.15);
+    --text-main: #ffffff;
+    --text-muted: #94a3b8;
+    --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(245, 158, 11, 0.05);
+    --nav-width: 260px;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    background-color: var(--primary-bg);
+    background-image: 
+        radial-gradient(at 0% 0%, rgba(245, 158, 11, 0.05) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(245, 158, 11, 0.03) 0px, transparent 50%);
+    color: var(--text-main);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Animations for "React" Feel */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.glass-panel, .card, .statistic-box {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Advanced Glassmorphism */
+.glass-panel, .card {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 20px !important;
+    box-shadow: var(--card-shadow) !important;
+    margin-bottom: 24px;
+    transition: var(--transition-smooth);
+}
+
+.glass-panel:hover {
+    border-color: rgba(245, 158, 11, 0.25) !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(245, 158, 11, 0.1) !important;
+}
+
+.card-header {
+    background: rgba(245, 158, 11, 0.03) !important;
+    border-bottom: 1px solid var(--glass-border) !important;
+    padding: 1.5rem !important;
+    border-radius: 20px 20px 0 0 !important;
+}
+
+/* Table High-Fidelity Styling - CLEAN VERSION */
+.table-responsive {
+    border-radius: 12px;
+    overflow: hidden;
+    background: transparent !important;
+}
+
+table.dataTable, .table {
+    margin-bottom: 0 !important;
+    border-collapse: collapse !important;
+    background: transparent !important;
+}
+
+table.dataTable thead th, .table thead th, .table-primary th {
+    background: var(--accent-color) !important;
+    color: #000000 !important; /* FORCED BLACK TEXT FOR VISIBILITY */
+    font-weight: 800 !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    font-size: 0.85rem !important;
+    padding: 1rem !important;
+    border: none !important;
+}
+
+table.dataTable thead th *, .table thead th *, .table-primary th * {
+    color: #000000 !important; /* Force children like sort icons to be visible */
+}
+
+/* Override DataTables Stripe and Hover Backgrounds completely */
+table.dataTable tbody tr, .table tbody tr,
+table.dataTable.stripe tbody tr.odd, table.dataTable.display tbody tr.odd,
+table.dataTable.stripe tbody tr.even, table.dataTable.display tbody tr.even,
+table.dataTable.hover tbody tr:hover, table.dataTable.display tbody tr:hover.odd {
+    background: rgba(25, 25, 25, 0.95) !important; /* Forced Dark Background */
+    transition: var(--transition-smooth);
+}
+
+table.dataTable tbody td, .table tbody td, table.dataTable.display tbody td,
+table.dataTable.display tbody tr.odd > .sorting_1, table.dataTable.order-column.stripe tbody tr.odd > .sorting_1,
+table.dataTable.display tbody tr.even > .sorting_1, table.dataTable.order-column.stripe tbody tr.even > .sorting_1 {
+    background: transparent !important; /* Prevent DataTables from coloring cells */
+    color: #ffffff !important; /* Force White Text */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-top: none !important;
+    padding: 1.25rem 1rem !important; /* Breathing room */
+    vertical-align: middle !important;
+}
+
+table.dataTable tbody tr:hover, .table tbody tr:hover, table.dataTable tbody tr:hover > td {
+    background: rgba(245, 158, 11, 0.15) !important;
+    color: #ffffff !important;
+}
+
+.form-control, .form-select, .input__text, textarea.input__text {
+    background: rgba(25, 25, 25, 0.95) !important;
+    border: 1px solid rgba(245, 158, 11, 0.2) !important;
+    color: #fff !important;
+    padding: 0.75rem 1rem !important;
+    border-radius: 12px !important;
+    transition: var(--transition-smooth) !important;
+    color-scheme: dark; /* Force the browser to render native dropdowns in dark mode */
+}
+
+/* Aggressive Override for <select> options in Windows/Chrome */
+select.form-control, select.form-select {
+    color: #ffffff !important;
+    background-color: #1a1a1a !important;
+}
+
+select.form-control option, select.form-select option {
+    background-color: #0f0f0f !important;
+    color: #ffffff !important;
+    padding: 10px !important;
+}
+
+.form-control:focus, .form-select:focus, .input__text:focus, textarea.input__text:focus {
+    background: rgba(30, 30, 30, 0.95) !important;
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2) !important;
+    transform: translateY(-1px);
+    color: #fff !important;
+}
+
+/* Fix for flex-label specific overriding text color */
+.fl-flex-label input {
+    color: #ffffff !important;
+}
+.fl-flex-label span {
+    background: transparent !important;
+    color: var(--accent-color) !important;
+}
+
+/* FORCED GLOBAL PURGE OF BLUE */
+.btn-primary, .btn-primary:hover, .btn-primary:active, .btn-primary:focus {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    border-color: #f59e0b !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;
+}
+
+.btn-info, .btn-info:hover, .btn-info:active, .btn-info:focus, 
+.btn-outline-info, .btn-outline-info:hover {
+    background: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #000000 !important;
+}
+
+/* Fix for buttons inside tables losing their text color due to td override */
+table.dataTable tbody td .btn, .table tbody td .btn,
+table.dataTable tbody td .btn i, .table tbody td .btn i {
+    color: inherit !important; /* Allow buttons to manage their own color */
+}
+
+table.dataTable tbody td .btn-info, .table tbody td .btn-info,
+table.dataTable tbody td .btn-info i, .table tbody td .btn-info i {
+    color: #000000 !important; /* Force black text for info buttons explicitly */
+}
+
+table.dataTable tbody td .btn-outline-primary, .table tbody td .btn-outline-primary,
+table.dataTable tbody td .btn-outline-primary i, .table tbody td .btn-outline-primary i {
+    color: var(--accent-color) !important;
+    border-color: var(--accent-color) !important;
+}
+
+table.dataTable tbody td .btn-outline-primary:hover, .table tbody td .btn-outline-primary:hover {
+    background: var(--accent-color) !important;
+    color: #000000 !important;
+}
+
+table.dataTable tbody td .btn-outline-primary:hover i, .table tbody td .btn-outline-primary:hover i {
+    color: #000000 !important;
+}
+
+.btn-success, .btn-success:hover, .btn-outline-success, .btn-outline-success:hover {
+    background: var(--accent-color) !important;
+    border-color: var(--accent-color) !important;
+    color: #000 !important;
+}
+
+.bg-primary, .badge-primary, .badge-info, .table-primary {
+    background-color: var(--accent-color) !important;
+    color: #000000 !important;
+    border-color: var(--accent-color) !important;
+}
+
+/* Sidebar Forced Override */
+.side-menu a.activo, 
+.side-menu li.blue > span,
+.side-menu li.blue a,
+.side-menu-list li a.activo, 
+.side-menu-list li.opened > span,
+.side-menu-list li a:hover,
+.side-menu li.opened > span i {
+    background-color: rgba(245, 158, 11, 0.4) !important;
+    background: rgba(245, 158, 11, 0.4) !important;
+    color: var(--accent-color) !important;
+    border-left: 5px solid var(--accent-color) !important;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+.side-menu a.activo .lbl,
+.side-menu a.activo i,
+.side-menu-list li a.activo .lbl,
+.side-menu-list li a.activo i {
+    color: var(--accent-color) !important;
+    font-weight: 800 !important;
+}
+
+/* Pagination Forced Override */
+.page-item.active .page-link, .pagination .active .page-link {
+    background-color: var(--accent-color) !important;
+    border-color: var(--accent-color) !important;
+    color: #000000 !important;
+}
+
+.page-link, .pagination a {
+    color: var(--accent-color) !important;
+    background-color: transparent !important;
+}
+
+/* Header & Global Accents */
+.site-header .site-header-content .site-header-shown .dropdown-notification .nomTipo {
+    color: var(--accent-color) !important;
+}
+
+.marca__texto {
+    color: var(--accent-color) !important;
+}
+
+/* Scrollbar Gold */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 4px; }
+
+/* Overrides resolved in top block */
+
+/* Override legacy variables globally */
+:root {
+    --menuActive: rgba(245, 158, 11, 0.4) !important;
+    --menuHover: rgba(245, 158, 11, 0.1) !important;
+}
+
+/* Sidebar "React App" Style */
+.side-menu {
+    background: #000 !important;
+    width: var(--nav-width) !important;
+    padding-top: 20px;
+    border-right: 1px solid var(--glass-border) !important;
+    position: fixed;
+    height: 100vh;
+}
+
+.side-menu-list li a {
+    padding: 12px 20px !important;
+    margin: 4px 12px !important;
+    border-radius: 12px !important;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.95rem;
+}
+
+.side-menu-list li a .fa, .side-menu-list li a .fas {
+    font-size: 1.1rem;
+    width: 24px;
+    text-align: center;
+}
+
+/* Buttons Glow Effect */
+.btn-glow {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-glow::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.btn-glow:hover::after {
+    opacity: 1;
+}
+
+/* Global Modal Dark Theme */
+.modal-content {
+    background: #0f0f0f !important; /* var(--secondary-bg) */
+    border: 1px solid rgba(245, 158, 11, 0.15) !important; /* var(--glass-border) */
+    color: #ffffff !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9);
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(245, 158, 11, 0.15) !important;
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(245, 158, 11, 0.15) !important;
+}
+
+/* Dashboard Statistic Boxes */
+.statistic-box {
+    border-radius: 24px !important;
+    border: 1px solid var(--glass-border) !important;
+    background: rgba(10, 10, 10, 0.4) !important;
+    padding: 30px !important;
+    transition: var(--transition-smooth) !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 160px;
+    z-index: 1;
+}
+
+.statistic-box:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.8), 0 0 20px var(--accent-soft);
+}
+
+.statistic-box.red { background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(0, 0, 0, 0.8)) !important; }
+.statistic-box.purple { background: linear-gradient(135deg, rgba(147, 51, 234, 0.1), rgba(0, 0, 0, 0.8)) !important; }
+.statistic-box.blue { background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(0, 0, 0, 0.8)) !important; }
+.statistic-box.green { background: linear-gradient(135deg, rgba(22, 163, 74, 0.1), rgba(0, 0, 0, 0.8)) !important; }
+.statistic-box.yellow { background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(0, 0, 0, 0.8)) !important; }
+
+.statistic-box .number {
+    color: var(--accent-color) !important;
+    text-shadow: 0 0 15px rgba(234, 179, 8, 0.3) !important;
+}
+
+/* Badges */
+.badge.bg-primary {
+    background-color: var(--accent-color) !important;
+    color: #000 !important;
+}
+
+/* Pagination */
+.page-item.active .page-link {
+    background-color: var(--accent-color) !important;
+    border-color: var(--accent-color) !important;
+    color: #000 !important;
+}
+
+/* Inputs */
+.form-control:focus {
+    border-color: var(--accent-color) !important;
+    box-shadow: 0 0 0 2px var(--accent-glow) !important;
+}
+
+/* --------------------------------------------------------------------------
+   USER DROPDOWN MENU THEME
+   -------------------------------------------------------------------------- */
+.dropdown-menu {
+    background: #0f0f0f !important;
+    border: 1px solid rgba(245, 158, 11, 0.2) !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9) !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+
+.dropdown-menu .dropdown-item {
+    color: #ffffff !important;
+    transition: var(--transition-smooth);
+    padding: 10px 20px !important;
+}
+
+.dropdown-menu .dropdown-item:hover, .dropdown-menu .dropdown-item:focus {
+    background: rgba(245, 158, 11, 0.15) !important;
+    color: var(--accent-color) !important;
+}
+
+.dropdown-menu .dropdown-item span.font-icon {
+    color: var(--accent-color) !important;
+    margin-right: 10px;
+}
+
+.dropdown-menu .dropdown-divider {
+    border-top: 1px solid rgba(245, 158, 11, 0.2) !important;
+    margin: 0 !important;
+}
+
+/* Dropdown Header specific fix */
+.dropdown-menu h5.nomInfo {
+    background: rgba(245, 158, 11, 0.15) !important;
+    color: var(--accent-color) !important;
+    margin: 0 !important;
+    border-bottom: 1px solid rgba(245, 158, 11, 0.2) !important;
+    padding: 15px !important;
+    font-weight: 700 !important;
+}

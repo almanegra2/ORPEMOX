@@ -30,30 +30,42 @@
 </script>
 @endif
 
-<h4 class="text-center text-secondary">ACTUALIZAR CONTRASEÑA</h4>
+<div class="px-4 py-2">
+    <div class="glass-panel p-4 mb-4">
+        <h2 class="text-center mb-5 mt-2" style="color: var(--accent-color); font-weight: 800; text-transform: uppercase; letter-spacing: 2px;">
+            <i class="fas fa-key mr-2"></i> ACTUALIZAR CONTRASEÑA
+        </h2>
 
-<div class="mb-0 col-12 bg-white p-5">
-    <form action="{{ route('usuario.actualizarClave') }}" method="POST">
-        @csrf
-        
-        <div class="row">
-            {{-- Clave Actual ocupa todo el ancho --}}
-            <div class="fl-flex-label mb-4 col-12">
-                <input type="password" name="clave_actual" class="input input__text" 
-                       placeholder="Ingrese la clave actual *" required>
+        <form action="{{ route('usuario.actualizarClave') }}" method="POST" class="px-lg-5">
+            @csrf
+            
+            <div class="row justify-content-center">
+                <div class="col-12 col-md-8 mb-4">
+                    <label class="form-label text-white ml-1">Contraseña Actual *</label>
+                    <input type="password" name="clave_actual" class="form-control input__text" 
+                           placeholder="Ingrese su clave actual" required>
+                    @error('clave_actual')
+                        <small class="text-danger d-block mt-1">{{ $message }}</small>
+                    @enderror
+                </div>
+
+                <div class="col-12 col-md-8 mb-4">
+                    <label class="form-label text-white ml-1">Nueva Contraseña *</label>
+                    <input type="password" name="clave_nueva" class="form-control input__text" 
+                           placeholder="Mínimo 6 caracteres" required>
+                    @error('clave_nueva')
+                        <small class="text-danger d-block mt-1">{{ $message }}</small>
+                    @enderror
+                </div>
             </div>
 
-            {{-- Nueva Clave ocupa todo el ancho, por lo que baja automáticamente --}}
-            <div class="fl-flex-label mb-4 col-12">
-                <input type="password" name="clave_nueva" class="input input__text" 
-                       placeholder="Ingrese la nueva clave *" required>
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-glow px-5 py-2" style="font-size: 1.1rem; font-weight: 700;">
+                    <i class="fas fa-save mr-2"></i> GUARDAR CONTRASEÑA
+                </button>
             </div>
-        </div>
-
-        <div class="text-right mt-0">
-            <button type="submit" class="btn btn-rounded btn-primary">Guardar</button>
-        </div>
-    </form>
+        </form>
+    </div>
 </div>
 
 @endsection
